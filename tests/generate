@@ -8,6 +8,9 @@
 * http://www.opensource.org/licenses/mit-license.php
 */
 
+
+include_once '../vendor/autoload.php';
+
 /**
  * generate fixtures from test database
  * fixtures are named according to convention and are only
@@ -63,7 +66,7 @@ class Generate {
         $this->CI = &get_instance();
         
         $this->CI->spyc = new Spyc();
-        $this->Ci->fixture = new Fixture();
+        $this->CI->fixture = new Fixture();
 
         $this->args_arr = args_arr();
         $this->params = $this->args_arr['params'];
@@ -96,24 +99,24 @@ e.g.: 'php generate help migration'
 
     function fixtures()
     {
-        $db = isset($this->params['db'])? $this->params['db']:'db';
-        $prefix = ($db == 'db2')? "db2_":"";
-        
+        $db = isset($this->params['db'])? $this->params['db']:'default';
+        $prefix = ($db == 'default') ? "" : $db;
+
         /**
          * Update this controller to your default controller
          */
-        $this->CI = set_controller('welcome');
+        $this->CI = set_controller('CI_Controller');
 
         echo "generating...\n";
         
-        $this->CI->load->database();
+        $this->CI->db = $this->CI->load->database($db, TRUE);
         
-        $tables = $this->CI->$db->list_tables();
+        $tables = $this->CI->db->list_tables();
         foreach ($tables as $table)
         {
               echo $table;
-              $fields = $this->CI->$db->list_fields($table);
-              $fixt_name= 'fixtures/'.$prefix.$table.'_fixt.yml';
+              $fields = $this->CI->db->list_fields($table);
+              $fixt_name= 'fixtures/'.$prefix.'_'.$table.'_fixt.yml';
               if (file_exists($fixt_name))
               {
                     echo "fixture $fixt_name already exits!\n";
