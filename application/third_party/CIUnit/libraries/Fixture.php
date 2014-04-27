@@ -25,9 +25,9 @@ class Fixture {
 	/**
 	* loads fixture data $fixt into corresponding table
 	*/
-	function load($table, $fixt)
+	function load($table, $fixt, $db_group_name = "default")
 	{
-		$this->_assign_db();
+		$this->_assign_db($db_group_name);
 		
 		// $fixt is supposed to be an associative array
 		// E.g. outputted by spyc from reading a YAML file
@@ -53,9 +53,9 @@ class Fixture {
 			"Data fixture for db table '$table' loaded - $nbr_of_rows rows");
 	}
 	
-	public function unload($table)
+	public function unload($table, $db_group_name = "default")
 	{
-		$this->_assign_db();
+		$this->_assign_db($db_group_name);
 		
 		$Q = $this->CI->db->simple_query('truncate table ' . $table . ';');
 		
@@ -67,15 +67,14 @@ class Fixture {
 	}
 	
 
-	private function _assign_db()
+	private function _assign_db($db_group_name = "default")
 	{
-		if ( ! isset($this->CI->db) OR
-			 ! isset($this->CI->db->database) )
+		if ( ! isset($this->CI))
 		{
 			$this->CI =& get_instance();
-			$this->CI->load->database();
 		}
-
+		$this->CI->load->database($db_group_name);
+		
 		//security measure 2: only load if used database ends on '_test'
 		$len = strlen($this->CI->db->database);
 

@@ -21,24 +21,31 @@ class CIUnit_TestCase extends PHPUnit_Framework_TestCase
 	 * to help account for foreign key restraints in databases.
 	 *
 	 * For example:
-	 * $tables = array(
-	 *				'group' => 'group',
-	 *				'user' => 'user',
-	 *				'user_group' => 'user_group'
-	 *				'table_a' => 'table_a_01'
-	 * 			);
+	 * $db_tables = array(
+	 *			'master' => array(
+	 *					'group' => 'group',
+	 *					'user' => 'user',
+	 *					'user_group' => 'user_group'
+	 *					'table_a' => 'table_a_01'
+	 *			),
+	 *			'user' => array(
+	 *					'user_basic' => 'user_basic'
+	 *			)
+	 *	);
 	 *
 	 * Note: To test different data scenarios for a single database, create
 	 * different fixtures.
 	 *
 	 * For example:
-	 * $tables = array(
-	 *				'table_a' => 'table_a_02'
-	 *			);
+	 * $db_tables = array(
+	 *  			'master' => array(
+	 *					'table_a' => 'table_a_02'
+	 *				)
+	 * );
 	 *
 	 * @var array
 	 */
-	protected $tables = array();
+	protected $db_tables = array();
 	
 	// ------------------------------------------------------------------------
 	
@@ -73,14 +80,17 @@ class CIUnit_TestCase extends PHPUnit_Framework_TestCase
 	 *
 	 * @return void
 	 *
-	 * @author Eric Jones
+	 * @author Sho Yoshida
 	 */
 	protected function setUp()
 	{
-		// Only run if the $tables attribute is set.
-		if ( ! empty($this->tables))
+		// Only run if the $db_tables attribute is set.
+		if ( ! empty($this->db_tables))
 		{
-			$this->dbfixt($this->tables);
+			$dbs = $this->db_tables;
+			foreach ($db_tables as $db_name => $db_tables) {
+				$this->dbfixt($db_tables, $db_name);
+			}
 		}
 	}
 	
@@ -91,14 +101,17 @@ class CIUnit_TestCase extends PHPUnit_Framework_TestCase
 	 * 
 	 * @return void
 	 *
-	 * @author Eric Jones
+	 * @author Sho Yoshida
 	 */
 	protected function tearDown()
 	{
-		// Only run if the $tables attribute is set.
-		if ( ! empty($this->tables))
+		// Only run if the $db_tables attribute is set.
+		if ( ! empty($this->db_tables))
 		{
-			$this->dbfixt_unload($this->tables);
+			$dbs = $this->db_tables;
+			foreach ($db_tables as $db_name => $db_tables) {
+				$this->dbfixt_unload($db_tables, $db_name);
+			}
 		}
 	}
 	
@@ -111,17 +124,11 @@ class CIUnit_TestCase extends PHPUnit_Framework_TestCase
 	 * dbfixt can have multiple strings as arguments, like so:
 	 * $this->dbfixt('users', 'items', 'prices');
 	 */
-	protected function dbfixt($table_fixtures)
+	protected function dbfixt(array $table_fixtures, $db_group_name = "default")
 	{
-		if (is_array($table_fixtures))
-		{
-			$this->load_fixt($table_fixtures);
-		}
-		else
-		{
-			$table_fixtures = func_get_args();
-			$this->load_fixt($table_fixtures);
-		}
+		
+		$this->load_fixt($table_fixtures);
+		
 		
 		/**
 		 * This is to allow the Unit Tester to specifiy different fixutre files for
@@ -137,7 +144,7 @@ class CIUnit_TestCase extends PHPUnit_Framework_TestCase
 			
 			if (!empty($this->$fixt_name))
 			{
-				CIUnit::$fixture->load($table, $this->$fixt_name);
+				CIUnit::$fixture->load($table, $this->$fixt_name, $db_group_name);
 			}
 			else
 			{
@@ -169,7 +176,7 @@ class CIUnit_TestCase extends PHPUnit_Framework_TestCase
 	 *
 	 * @author Eric Jones <eric.web.email@gmail.com>
 	 */
-	protected function dbfixt_unload(array $table_fixtures, $reverse = true)
+	protected function dbfixt_unload(array $table_fixtures, $db_group_name = "default", $reverse = true)
 	{
 		// Should we reverse the order of loading?
 		// Helps with truncating tables with foreign key dependencies.
@@ -184,7 +191,7 @@ class CIUnit_TestCase extends PHPUnit_Framework_TestCase
 		// Iterate over the array unloading the tables
 		foreach ($table_fixtures as $table => $fixture)
 		{
-			CIUnit::$fixture->unload($table);
+			CIUnit::$fixture->unload($table, $db_group_name);
 			log_message('debug', 'Table fixture "' . $fixture . '" unloaded');
 		}
 	}
