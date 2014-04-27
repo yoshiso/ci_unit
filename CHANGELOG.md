@@ -10,7 +10,8 @@ An associative array of table names. The order of the fixtures
 determines the loading and unloading sequence of the fixtures. This is 
 to help account for foreign key restraints in databases.
 
-$tables => $db_tablesに変更されました。
+$db_tablesプロパティを追加。各データベースの各テーブル毎に
+フィクスチャーをロードする機能を追加。
 
 
 For example:
@@ -35,6 +36,11 @@ $db_tables = array(
         'table_a' => 'table_a_02'
     )
 );
+
+=> CIUnitTestCase.php
+
+CIUnit_TestCase#connect($db_name)
+を追加。テストケースにおいて、現在接続しているデータベースの切り替えを行なう。
 
 
 * 複数データベースのフィクスチャーを生成可能に

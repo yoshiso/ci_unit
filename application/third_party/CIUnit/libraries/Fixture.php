@@ -73,8 +73,7 @@ class Fixture {
 		{
 			$this->CI =& get_instance();
 		}
-		$this->CI->load->database($db_group_name);
-		
+		$this->CI->db = $this->CI->load->database($db_group_name, TRUE);
 		//security measure 2: only load if used database ends on '_test'
 		$len = strlen($this->CI->db->database);
 

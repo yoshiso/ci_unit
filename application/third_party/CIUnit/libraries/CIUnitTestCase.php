@@ -94,7 +94,7 @@ class CIUnit_TestCase extends PHPUnit_Framework_TestCase
 		else if ( ! empty($this->db_tables))
 		{
 			$dbs = $this->db_tables;
-			foreach ($db_tables as $db_name => $db_tables) {
+			foreach ($dbs as $db_name => $db_tables) {
 				$this->dbfixt($db_tables, $db_name);
 			}
 		}
@@ -118,7 +118,7 @@ class CIUnit_TestCase extends PHPUnit_Framework_TestCase
 		else if ( ! empty($this->db_tables))
 		{
 			$dbs = $this->db_tables;
-			foreach ($db_tables as $db_name => $db_tables) {
+			foreach ($dbs as $db_name => $db_tables) {
 				$this->dbfixt_unload($db_tables, $db_name);
 			}
 		}
@@ -231,6 +231,15 @@ class CIUnit_TestCase extends PHPUnit_Framework_TestCase
 				die('The file '. TESTSPATH . 'fixtures/' . $fixt . '_fixt.yml doesn\'t exist.');
 			}
 		}
+	}
+
+	/**
+	* change current connecting database.
+	*/
+	protected function connect($db_name)
+	{
+		$this->CI->db = $this->CI->load->database($db_name, TRUE);
+		log_message('info', 'Database connected to '.$this->CI->db->database);
 	}
 }
 
