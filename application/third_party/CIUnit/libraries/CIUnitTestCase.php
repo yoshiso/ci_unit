@@ -47,6 +47,8 @@ class CIUnit_TestCase extends PHPUnit_Framework_TestCase
 	 */
 	protected $db_tables = array();
 	
+	protected $tables = array();
+
 	// ------------------------------------------------------------------------
 	
 	/**
@@ -84,8 +86,12 @@ class CIUnit_TestCase extends PHPUnit_Framework_TestCase
 	 */
 	protected function setUp()
 	{
+		// Only run if the $tables attribute is set.
+		if( ! empty($this->tables)){
+			$this->dbfixt($this->tables);
+		}
 		// Only run if the $db_tables attribute is set.
-		if ( ! empty($this->db_tables))
+		else if ( ! empty($this->db_tables))
 		{
 			$dbs = $this->db_tables;
 			foreach ($db_tables as $db_name => $db_tables) {
@@ -105,8 +111,11 @@ class CIUnit_TestCase extends PHPUnit_Framework_TestCase
 	 */
 	protected function tearDown()
 	{
+		if ( ! empty($this->tables)){
+			$this->dbfixt_unload($db_tables);
+		}
 		// Only run if the $db_tables attribute is set.
-		if ( ! empty($this->db_tables))
+		else if ( ! empty($this->db_tables))
 		{
 			$dbs = $this->db_tables;
 			foreach ($db_tables as $db_name => $db_tables) {
