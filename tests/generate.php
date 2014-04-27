@@ -1,6 +1,5 @@
 <?php
 
-//echo 'with php'; die();
 
 require_once dirname(__FILE__) . '/../application/third_party/CIUnit/bootstrap_phpunit.php';
 include_once dirname(__FILE__) . '/getops.php';
@@ -138,8 +137,13 @@ class Generate
 			
 			$yaml_data = preg_replace('#^\-\-\-#', '', $yaml_data);
 			
-			/* don't check if the file already exists */
-			file_put_contents($filename, $yaml_data);	
+			if (file_exists($filename))
+            {
+                echo "fixture $fixt_name already exits!\n";
+            }
+            else{
+				file_put_contents($filename, $yaml_data);	
+			}
 		}
 	}
 }
@@ -153,13 +157,15 @@ $generate_what = array_shift($args);
 if (!method_exists($generate, $generate_what))
 {
 	die("\nMethod '$generate_what' is invalid.
+Whats this:
+	Generating fixtures from exsisting databases
 Usage:
 	php generate.php fixtures <options>
 Options:
+	-d  which database group used <default: default>
 	-f  tables of which fixtures should be created (-f table1 -f table2 etc)
 		 omitting the -f option, selects all tables in the database.
 	-n  number of rows in fixtures <default: 5>
-	-d  which database group used <default: default>
 	-o  output directory\n");
 }
 else
