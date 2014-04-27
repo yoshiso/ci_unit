@@ -10,7 +10,6 @@ class Generate
 	function __construct()
 	{
 		$this->CI = &set_controller('CI_Controller');
-		$this->CI->load->database();
 	}
 
 	function get_table_fields($table)
@@ -79,6 +78,21 @@ class Generate
 
 	function fixtures($args = Array())
 	{
+		$opts = getopts(array(
+			'rows'	 => array('switch' => 'n', 'type' => GETOPT_VAL, 'default' => 5),
+			'fixtures' => array('switch' => 'f', 'type' => GETOPT_MULTIVAL),
+			'output'   => array('switch' => 'o', 'type' => GETOPT_VAL, 'default' => '/fixtures'),
+			'database' => array('switch' => 'd', 'type' => GETOPT_VAL, 'default' => 'default')
+		), $args);
+		
+		
+		$rows	 = $opts['rows'];
+		$fixtures = $opts['fixtures'];
+		$output   = rtrim(str_replace('\\','/',$opts['output']), '/') . '/';
+		$database = $opts['database'];
+
+		$this->CI->load->database($database);
+
 		if (substr($this->CI->db->database, -5, 5) != '_test')
 		{
 		   die("\nSorry, the name of your test database must end on '_test'.\n".
@@ -90,17 +104,8 @@ class Generate
 		{
 			die("\nCould not select development database.\n");   
 		}		
-	   
-		$opts = getopts(array(
-			'rows'	 => array('switch' => 'n', 'type' => GETOPT_VAL, 'default' => 5),
-			'fixtures' => array('switch' => 'f', 'type' => GETOPT_MULTIVAL),
-			'output'   => array('switch' => 'o', 'type' => GETOPT_VAL, 'default' => '/fixtures')
-		), $args);
-		
-		
-		$rows	 = $opts['rows'];
-		$fixtures = $opts['fixtures'];
-		$output   = rtrim(str_replace('\\','/',$opts['output']), '/') . '/';
+
+
 		if (!@chdir(dirname(__FILE__) . '/' . $output))
 		{
 			die("\nOutput directory '$output' does not exist.\n");   
@@ -154,6 +159,7 @@ Options:
 	-f  tables of which fixtures should be created (-f table1 -f table2 etc)
 		 omitting the -f option, selects all tables in the database.
 	-n  number of rows in fixtures <default: 5>
+	-d  which database group used <default: default>
 	-o  output directory\n");
 }
 else
