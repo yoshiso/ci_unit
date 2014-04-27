@@ -112,7 +112,7 @@ class CIUnit_TestCase extends PHPUnit_Framework_TestCase
 	protected function tearDown()
 	{
 		if ( ! empty($this->tables)){
-			$this->dbfixt_unload($db_tables);
+			$this->dbfixt_unload($this->tables);
 		}
 		// Only run if the $db_tables attribute is set.
 		else if ( ! empty($this->db_tables))
